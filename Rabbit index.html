@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐰 兔子头 · 税法扭蛋与积分商城</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Quicksand', 'Segoe UI', 'Fredoka One', sans-serif;
+        }
+
+        body {
+            background: #ffe8f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 30px 20px;
+            transition: background 0.3s;
+            position: relative;
+        }
+
+        .cat-corner {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            z-index: 100;
+            filter: drop-shadow(0 12px 8px rgba(231, 120, 160, 0.4));
+        }
+        .cat-body {
+            background: #fbe4c0;
+            width: 130px;
+            height: 120px;
+            border-radius: 60% 60% 40% 40%;
+            border: 5px solid white;
+            box-shadow: 0 12px 0 #d890aa, 0 15px 20px rgba(190, 90, 120, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .cat-ears {
+            display: flex;
+            gap: 30px;
+            margin-top: -35px;
+        }
+        .cat-ear {
+            width: 30px;
+            height: 40px;
+            background: #fbe4c0;
+            border: 4px solid white;
+            border-radius: 50% 50% 0 0;
+            transform: rotate(-15deg);
+            box-shadow: 0 -5px 0 #d890aa;
+        }
+        .cat-ear:last-child {
+            transform: rotate(15deg);
+        }
+        .cat-face {
+            font-size: 3.8rem;
+            line-height: 1;
+            margin-top: -10px;
+        }
+
+        .main-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 30px;
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 90px;
+            padding: 30px 30px;
+            width: 100%;
+            max-width: 850px;
+            border: 6px solid white;
+            box-shadow: 0 30px 40px rgba(250, 170, 200, 0.5), 0 15px 0 #ffb7c5;
+            position: relative;
+            padding-bottom: 100px;
+        }
+
+        .score-panel {
+            background: #fff9e6;
+            border-radius: 70px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+            border: 5px solid white;
+            box-shadow: 0 10px 0 #e4bb9c;
+            margin-bottom: 30px;
+            flex-wrap: nowrap;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .input-group label {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #b14d72;
+            white-space: nowrap;
+        }
+        .score-input {
+            font-size: 2rem;
+            width: 150px;
+            border: 5px solid #ffc1d0;
+            border-radius: 60px;
+            padding: 10px 20px;
+            background: white;
+            font-weight: 700;
+            color: #b31554;
+        }
+        .display-score {
+            font-size: 2rem;
+            background: #ffdbec;
+            padding: 10px 30px;
+            border-radius: 60px;
+            border: 4px solid white;
+            font-weight: 700;
+            color: #952f57;
+            box-shadow: inset 0 -5px 0 #e3a7bc;
+            white-space: nowrap;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 25px;
+            width: calc(100% - 60px);
+            display: flex;
+            justify-content: space-between;
+        }
+        .nav-tab {
+            background: #ffe2ed;
+            border: 5px solid white;
+            padding: 12px 35px;
+            border-radius: 70px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #a53f6b;
+            cursor: pointer;
+            box-shadow: 0 10px 0 #cc88a2;
+            transition: 0.05s linear;
+        }
+        .nav-tab:active {
+            transform: translateY(8px);
+            box-shadow: 0 2px 0 #cc88a2;
+        }
+        .nav-tab.active {
+            background: #fbb0d0;
+            color: white;
+            box-shadow: 0 10px 0 #b74879;
+        }
+
+        .page {
+            display: none;
+        }
+        .page.active-page {
+            display: block;
+        }
+
+        .tier-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 160px;
+            margin-top: 65px;
+        }
+        .tier-chip {
+            background: #ffe5f0;
+            border: 4px solid white;
+            border-radius: 60px;
+            padding: 12px 15px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 7px 0 #c27b99;
+            transition: all 0.2s;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .tier-chip.selected {
+            transform: translateY(3px);
+            box-shadow: 0 4px 0 #666;
+        }
+
+        /* ========= 兔子头：两只圆圈眼睛 + 小三角鼻子 ========= */
+        .gacha-machine {
+            width: 420px;
+            position: relative;
+            margin: 0 auto;
+            margin-top: 20px;
+        }
+        .rabbit-head {
+            width: 100%;
+            height: 140px;
+            background: #ffffff;
+            border-radius: 70px 70px 0 0;
+            border: 7px solid #8b5a2b;
+            border-bottom: none;
+            position: relative;
+        }
+        .rabbit-ear {
+            width: 50px;
+            height: 85px;
+            background: #ffffff;
+            border: 7px solid #8b5a2b;
+            border-bottom: none;
+            border-radius: 25px 25px 0 0;
+            position: absolute;
+            top: -55px;
+        }
+        .rabbit-ear.left { left: 70px; }
+        .rabbit-ear.right { right: 70px; }
+
+        /* 左眼（你原来的那个） */
+        .eye-left {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 4px solid #8b5a2b;
+            position: absolute;
+            top: 12px;
+            left: 80px;
+        }
+        /* 右眼（对称复制，和左边一模一样） */
+        .eye-right {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 4px solid #8b5a2b;
+            position: absolute;
+            top: 12px;
+            right: 80px;
+        }
+
+        .cheek {
+            width: 35px;
+            height: 22px;
+            border-radius: 50%;
+            background: #ffe0e8;
+            position: absolute;
+            top: 60px;
+        }
+        .cheek.left { left: 125px; }
+        .cheek.right { right: 125px; }
+
+        /* 只留一个干净小三角鼻子 */
+        .rabbit-nose {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 10px solid #8b5a2b;
+            position: absolute;
+            left: 50%;
+            top: 70px;
+            transform: translateX(-50%);
+        }
+
+        .glass-chamber {
+            width: 100%;
+            height: 360px;
+            background: rgba(240, 248, 255, 0.8);
+            border: 7px solid #8b5a2b;
+            border-radius: 0 0 45% 45%;
+            position: relative;
+            overflow: hidden;
+        }
+        .egg-pool {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+        .egg-item, .falling-egg {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 5px solid #8b5a2b;
+            position: absolute;
+            overflow: hidden;
+            filter: drop-shadow(0 10px 8px rgba(86,43,59,0.6));
+        }
+        .egg-item::after, .falling-egg::after, .modal-egg-part::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 5px;
+            background: #8b5a2b;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+        }
+
+        .machine-base {
+            width: 100%;
+            height: 260px;
+            background: #ffcc80;
+            border: 7px solid #8b5a2b;
+            border-radius: 0 0 35px 35px;
+            position: relative;
+            padding: 20px;
+        }
+        .base-top {
+            height: 32px;
+            border-bottom: 4px solid #8b5a2b;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 0 12px;
+        }
+        .dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            border: 3px solid #8b5a2b;
+        }
+        .dot.green { background: #81c784; }
+        .dot.red   { background: #e57373; }
+        .dot.blue  { background: #4fc3f7; }
+        .dot.yellow{ background: #fff176; }
+
+        .carrot-btn {
+            width: 100px;
+            height: 50px;
+            border-radius: 28px;
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.4rem;
+            box-shadow: 0 5px 0 #d84315;
+            border: 5px solid white;
+            transition: all 0.1s;
+        }
+        .carrot-btn:active {
+            transform: translateX(-50%) translateY(5px);
+            box-shadow: 0 0 0 #d84315;
+        }
+        .carrot-leaf {
+            width: 28px;
+            height: 23px;
+            border-radius: 50%;
+            background: #66bb6a;
+            position: absolute;
+            right: -10px;
+            top: -8px;
+            border: 4px solid #8b5a2b;
+        }
+
+        .dispenser {
+            width: 140px;
+            height: 110px;
+            background: #d7ccc8;
+            border: 6px solid #8b5a2b;
+            border-radius: 50% 50% 25px 25px;
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            overflow: hidden;
+        }
+        .falling-egg {
+            left: 50%;
+            top: -90px;
+            transform: translateX(-50%);
+            transition: top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 10;
+        }
+
+        .welcome-label {
+            position: absolute;
+            bottom: 90px;
+            left: 25px;
+            background: #ccff90;
+            border: 4px solid #8b5a2b;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .arrow-label {
+            position: absolute;
+            bottom: 45px;
+            left: 25px;
+            background: #ccff90;
+            border: 4px solid #8b5a2b;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .arrow {
+            display: inline-block;
+            transform: rotate(90deg);
+        }
+
+        /* ========= 淡黄色奖品背景 ========= */
+        .gacha-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .gacha-modal.show {
+            display: flex;
+        }
+        .modal-egg-box {
+            width: 240px;
+            height: 240px;
+            position: relative;
+        }
+        .modal-egg-part {
+            width: 240px;
+            height: 120px;
+            border: 7px solid #8b5a2b;
+            background: #fff;
+            position: absolute;
+            z-index: 3;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-egg-top {
+            top: 0;
+            border-radius: 120px 120px 0 0;
+            border-bottom: none;
+        }
+        .modal-egg-bottom {
+            bottom: 0;
+            border-radius: 0 0 120px 120px;
+            border-top: none;
+        }
+        .modal-egg-box.open .modal-egg-top {
+            transform: translateY(-130px);
+        }
+        .modal-egg-box.open .modal-egg-bottom {
+            transform: translateY(130px);
+        }
+
+        .prize-bg-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            padding: 18px 25px;
+            background: #fff3c7;
+            border-radius: 25px;
+            border: 3px solid #e4bb9c;
+            z-index: 2;
+            text-align: center;
+        }
+        .modal-prize {
+            font-size: 36px;
+            font-weight: 900;
+            color: #000;
+            line-height: 1.3;
+        }
+
+        /* ========= 商城 ========= */
+        .shop-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            margin: 10px 0 0;
+        }
+        .shop-item {
+            background: white;
+            border-radius: 60px;
+            padding: 25px 20px 20px;
+            width: 220px;
+            border: 6px solid #ffe0f0;
+            box-shadow: 0 15px 0 #f3b1c4, 0 20px 30px #e0779e70;
+            text-align: center;
+        }
+        .item-image {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 15px;
+            border-radius: 40px;
+            background: #fbeef2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            border: 3px dashed #ffa5c0;
+            object-fit: cover;
+        }
+        .item-image img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 30px;
+        }
+        .item-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ba4670;
+        }
+        .item-price {
+            font-size: 2rem;
+            background: #fee3b5;
+            border-radius: 50px;
+            padding: 8px 0;
+            margin: 12px 0;
+            border: 3px solid white;
+        }
+        .exchange-btn {
+            background: #7ac7c4;
+            border: none;
+            font-size: 1.8rem;
+            padding: 10px 0;
+            width: 100%;
+            border-radius: 50px;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 7px 0 #4f8b88;
+            cursor: pointer;
+            transition: 0.05s;
+            border: 3px solid white;
+        }
+        .exchange-btn:active {
+            transform: translateY(7px);
+            box-shadow: none;
+        }
+
+        /* ========= 管理员弹窗（完整恢复） ========= */
+        .admin-lock {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #ed9eb7;
+            border: 5px solid white;
+            border-radius: 50px;
+            padding: 12px 28px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 10px 0 #a84d70;
+            z-index: 200;
+        }
+        .admin-lock:active {
+            transform: translateY(8px);
+            box-shadow: 0 2px 0 #a84d70;
+        }
+        .admin-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .admin-card {
+            background: #fff3fb;
+            border-radius: 90px;
+            padding: 45px;
+            max-width: 1300px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 10px solid white;
+        }
+        .admin-card h2 {
+            font-size: 3rem;
+            color: #aa4e76;
+            margin-bottom: 30px;
+        }
+        .color-row {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            background: #ffeef4;
+            padding: 25px;
+            border-radius: 80px;
+            margin: 20px 0;
+        }
+        .tier-edit, .shop-edit {
+            background: white;
+            border-radius: 60px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        .prize-edit-item {
+            display: inline-block;
+            background: #fdd7e7;
+            border-radius: 50px;
+            padding: 10px 20px;
+            margin: 8px;
+        }
+        button {
+            background: #eaa5bb;
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.4rem;
+            margin: 8px;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 5px 0 #b2567a;
+        }
+        button:active {
+            transform: translateY(5px);
+            box-shadow: none;
+        }
+        input, textarea {
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 3px solid #ffb7c5;
+            font-size: 1.2rem;
+            margin: 5px;
+        }
+        .close-btn {
+            background: #c0819b;
+            float: right;
+        }
+    </style>
+</head>
+<body id="mainBody">
+
+<div class="cat-corner">
+    <div class="cat-ears"><div class="cat-ear"></div><div class="cat-ear"></div></div>
+    <div class="cat-body"><div class="cat-face">😺</div></div>
+</div>
+
+<div class="admin-lock" id="adminLockBtn">🔐 管理员</div>
+
+<div class="main-container">
+    <div class="tier-selector" id="tierSelector"></div>
+    <div class="main-card">
+        <div class="score-panel">
+            <div class="input-group">
+                <label>📌 我的积分</label>
+                <input type="number" id="userScoreInput" class="score-input" value="100" min="0" step="1">
+                <button id="updateScoreBtn">更新</button>
+            </div>
+            <div class="display-score" id="displayScore">100</div>
+        </div>
+
+        <div id="gachaPage" class="page active-page">
+            <div class="gacha-machine" id="gachaMachine">
+                <div class="rabbit-head" id="rabbitHead">
+                    <div class="rabbit-ear left"></div>
+                    <div class="rabbit-ear right"></div>
+                    <div class="eye-left" id="eyeLeft"></div>
+                    <div class="eye-right" id="eyeRight"></div>
+                    <div class="cheek left"></div>
+                    <div class="cheek right"></div>
+                    <div class="rabbit-nose"></div>
+                </div>
+                <div class="glass-chamber"><div class="egg-pool" id="eggPool"></div></div>
+                <div class="machine-base">
+                    <div class="base-top">
+                        <div class="dot"></div><div class="dot"></div><div class="dot green"></div>
+                        <div class="dot red"></div><div class="dot blue"></div><div class="dot yellow"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                    </div>
+                    <div class="carrot-btn" id="gachaBtn">
+                        <div class="carrot-leaf"></div>扭一扭
+                    </div>
+                    <div class="welcome-label">Welcome</div>
+                    <div class="arrow-label"><span class="arrow">➡️</span></div>
+                    <div class="dispenser"><div class="falling-egg" id="fallingEgg"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="shopPage" class="page"><div class="shop-grid" id="shopGrid"></div></div>
+
+        <div class="bottom-nav">
+            <div class="nav-tab active" data-page="gacha">🎰 扭蛋机</div>
+            <div class="nav-tab" data-page="shop">🛍️ 积分商城</div>
+        </div>
+    </div>
+</div>
+
+<div class="gacha-modal" id="gachaModal">
+    <div class="modal-egg-box" id="modalEggBox">
+        <div class="prize-bg-box">
+            <div class="modal-prize" id="modalPrize"></div>
+        </div>
+        <div class="modal-egg-part modal-egg-top" id="modalEggTop"></div>
+        <div class="modal-egg-part modal-egg-bottom" id="modalEggBottom"></div>
+    </div>
+</div>
+
+<!-- 管理员完整弹窗结构 -->
+<div class="admin-modal" id="pwdModal">
+    <div class="admin-card">
+        <h2>🔐 管理员登录</h2>
+        <input type="password" id="pwdInput" placeholder="请输入管理员密码" style="width: 300px;">
+        <button id="submitPwd">登录</button>
+        <button class="close-btn" id="closePwd">关闭</button>
+    </div>
+</div>
+
+<div class="admin-modal" id="adminPanel">
+    <div class="admin-card">
+        <h2>⚙️ 管理员后台</h2>
+        <button class="close-btn" id="closeAdmin">关闭</button>
+
+        <div class="color-row">
+            <label>页面背景色：</label>
+            <input type="color" id="bgColorPicker" value="#ffe8f0">
+            <button id="applyBgColor">应用</button>
+        </div>
+        <div class="color-row">
+            <label>机器底座色：</label>
+            <input type="color" id="baseColorPicker" value="#ffcc80">
+            <button id="applyBaseColor">应用</button>
+        </div>
+
+        <div id="tiersEditContainer"></div>
+        <button id="addTierBtn">添加档位</button>
+
+        <h3 style="margin:30px 0 10px;">🛍️ 积分商城商品</h3>
+        <div id="shopEditContainer"></div>
+        <button id="addShopItemBtn">添加商品</button>
+        
+        <!-- 新增：保存所有设置按钮 -->
+        <button id="saveAllSettings" style="background:#48a36d; margin-top:20px;">💾 保存所有设置</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const ADMIN_PWD = 'pjy123';
+        let tiers = [
+            { id: 't1', min: 5, color: '#FFB347', prizes: ['增值税贴纸','税法书签','减税糖果'] },
+            { id: 't2', min: 10, color: '#5F9EA0', prizes: ['纳税笔记本','发票中性笔','个税徽章'] },
+            { id: 't3', min: 20, color: '#C1A5D5', prizes: ['税法扑克','计算器','退税钥匙扣'] }
+        ];
+        let shopItems = [
+            { id: 's1', name: '🐱 小猫玩偶', price: 30, image: '🧸', imageType: 'emoji' },
+            { id: 's2', name: '📚 税法漫画', price: 20, image: '📘', imageType: 'emoji' },
+            { id: 's3', name: '🍭 糖果礼包', price: 15, image: '🍬', imageType: 'emoji' }
+        ];
+        let bgColor = '#ffe8f0';
+        let machineBaseColor = '#ffcc80';
+        let currentScore = 100;
+        let selectedTierId = tiers[0]?.id || null;
+        let isGachaing = false;
+
+        // ========== 新增：云同步核心配置 ==========
+        const CLOUD_KEY = 'tax-rabbit-gacha-final'; // 唯一标识，避免冲突
+        const CLOUD_API = 'https://tinyjson.com/api';
+
+        // 从云端加载最新设置
+        async function loadFromCloud() {
+            try {
+                const res = await fetch(`${CLOUD_API}/${CLOUD_KEY}`);
+                const data = await res.json();
+                if (data.success && data.data) {
+                    tiers = data.data.tiers || tiers;
+                    shopItems = data.data.shopItems || shopItems;
+                    bgColor = data.data.bgColor || bgColor;
+                    machineBaseColor = data.data.machineBaseColor || machineBaseColor;
+                    console.log('✅ 加载云端设置成功');
+                }
+            } catch (e) {
+                console.log('⚠️  首次使用，云端无设置');
+            }
+        }
+
+        // 保存设置到云端
+        async function saveToCloud() {
+            const data = { tiers, shopItems, bgColor, machineBaseColor };
+            try {
+                await fetch(`${CLOUD_API}/${CLOUD_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                console.log('✅ 同步到云端成功');
+            } catch (e) {
+                alert('⚠️  本地设置已保存，云端同步失败');
+            }
+        }
+
+        // ========== 原有DOM元素和功能完全保留 ==========
+        const bodyEl = document.getElementById('mainBody');
+        const userScoreInput = document.getElementById('userScoreInput');
+        const displayScore = document.getElementById('displayScore');
+        const updateScoreBtn = document.getElementById('updateScoreBtn');
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const gachaPage = document.getElementById('gachaPage');
+        const shopPage = document.getElementById('shopPage');
+        const tierSelector = document.getElementById('tierSelector');
+        const eggPool = document.getElementById('eggPool');
+        const gachaBtn = document.getElementById('gachaBtn');
+        const fallingEgg = document.getElementById('fallingEgg');
+        const eyeLeft = document.getElementById('eyeLeft');
+        const eyeRight = document.getElementById('eyeRight');
+        const gachaModal = document.getElementById('gachaModal');
+        const modalEggBox = document.getElementById('modalEggBox');
+        const modalEggTop = document.getElementById('modalEggTop');
+        const modalEggBottom = document.getElementById('modalEggBottom');
+        const modalPrize = document.getElementById('modalPrize');
+        const shopGrid = document.getElementById('shopGrid');
+
+        // 管理员相关 DOM
+        const adminLockBtn = document.getElementById('adminLockBtn');
+        const pwdModal = document.getElementById('pwdModal');
+        const adminPanel = document.getElementById('adminPanel');
+        const pwdInput = document.getElementById('pwdInput');
+        const submitPwd = document.getElementById('submitPwd');
+        const closePwd = document.getElementById('closePwd');
+        const closeAdmin = document.getElementById('closeAdmin');
+        const bgColorPicker = document.getElementById('bgColorPicker');
+        const applyBgColor = document.getElementById('applyBgColor');
+        const baseColorPicker = document.getElementById('baseColorPicker');
+        const applyBaseColor = document.getElementById('applyBaseColor');
+        const tiersEditContainer = document.getElementById('tiersEditContainer');
+        const addTierBtn = document.getElementById('addTierBtn');
+        const shopEditContainer = document.getElementById('shopEditContainer');
+        const addShopItemBtn = document.getElementById('addShopItemBtn');
+        const saveAllSettings = document.getElementById('saveAllSettings'); // 新增保存按钮
+
+        // 分数更新
+        function updateScoreUI() {
+            displayScore.innerText = currentScore;
+            userScoreInput.value = currentScore;
+        }
+        updateScoreBtn.addEventListener('click', () => {
+            let v = parseInt(userScoreInput.value);
+            if (isNaN(v) || v < 0) v = 0;
+            currentScore = v;
+            updateScoreUI();
+        });
+
+        // 分页切换
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                navTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const p = tab.dataset.page;
+                if (p === 'gacha') {
+                    gachaPage.classList.add('active-page');
+                    shopPage.classList.remove('active-page');
+                } else {
+                    gachaPage.classList.remove('active-page');
+                    shopPage.classList.add('active-page');
+                    renderShop();
+                }
+            });
+        });
+
+        // 蛋池生成
+        function generateEggPool() {
+            eggPool.innerHTML = '';
+            const cs = [...new Set(tiers.map(t=>t.color))];
+            if (!cs.length) return;
+            const pos = [
+                {top:40,left:70},{top:110,left:140},{top:170,left:210},{top:70,left:270},
+                {top:210,left:90},{top:140,left:310},{top:270,left:170},{top:90,left:30}
+            ];
+            pos.forEach((p,i)=>{
+                const c = cs[i%cs.length];
+                const e = document.createElement('div');
+                e.className='egg-item';
+                e.style.backgroundColor=c;
+                e.style.top=p.top+'px';
+                e.style.left=p.left+'px';
+                eggPool.appendChild(e);
+            });
+        }
+
+        // 档位选择
+        function renderTierSelector() {
+            tierSelector.innerHTML='';
+            tiers.forEach(t=>{
+                const ch=document.createElement('div');
+                ch.className=`tier-chip ${selectedTierId===t.id?'selected':''}`;
+                ch.style.backgroundColor=t.color;
+                ch.dataset.id=t.id;
+                ch.innerText=`${t.min} 积分/抽`;
+                ch.addEventListener('click',()=>{
+                    if(isGachaing)return;
+                    selectedTierId=t.id;
+                    renderTierSelector();
+                    resetGachaState();
+                    syncEyeColor(t.color);
+                    gachaBtn.style.backgroundColor=t.color;
+                });
+                tierSelector.appendChild(ch);
+            });
+        }
+
+        // 眼睛变色
+        function syncEyeColor(c) {
+            eyeLeft.style.backgroundColor = c;
+            eyeRight.style.backgroundColor = c;
+        }
+
+        function getCurTier(){ return tiers.find(t=>t.id===selectedTierId); }
+        function resetGachaState(){
+            isGachaing=false;
+            eggPool.style.transform='rotate(0)';
+            fallingEgg.style.top='-90px';
+            fallingEgg.style.backgroundColor='transparent';
+            gachaModal.classList.remove('show');
+            modalEggBox.classList.remove('open');
+            modalEggTop.style.backgroundColor='transparent';
+            modalEggBottom.style.backgroundColor='transparent';
+            modalPrize.innerText='';
+        }
+
+        // 扭蛋逻辑
+        gachaBtn.addEventListener('click',()=>{
+            if(isGachaing||!selectedTierId)return;
+            const t=getCurTier();
+            if(!t||currentScore<t.min){alert(`需${t.min}积分`);return;}
+            currentScore -= t.min;
+            updateScoreUI();
+            isGachaing=true;
+            eggPool.style.transform=`rotate(${Math.random()*360+180}deg)`;
+            setTimeout(()=>{
+                fallingEgg.style.backgroundColor=t.color;
+                fallingEgg.style.top='15px';
+                setTimeout(()=>{
+                    const p=t.prizes[Math.floor(Math.random()*t.prizes.length)];
+                    modalEggTop.style.backgroundColor=t.color;
+                    modalEggBottom.style.backgroundColor=t.color;
+                    modalPrize.innerText=p;
+                    gachaModal.classList.add('show');
+                    setTimeout(()=>{modalEggBox.classList.add('open');isGachaing=false;},300);
+                },600);
+            },800);
+        });
+
+        gachaModal.addEventListener('click',resetGachaState);
+
+        // 商城渲染
+        function renderShop(){
+            shopGrid.innerHTML='';
+            shopItems.forEach(it=>{
+                const d=document.createElement('div');
+                d.className='shop-item';
+                d.innerHTML=`
+                    <div class="item-image">${it.imageType==='emoji'?it.image:`<img src="${it.image}">`}</div>
+                    <div class="item-name">${it.name}</div>
+                    <div class="item-price">💰 ${it.price} 积分</div>
+                    <button class="exchange-btn" data-id="${it.id}">兑换</button>
+                `;
+                d.querySelector('.exchange-btn').addEventListener('click',()=>{
+                    if(currentScore>=it.price){
+                        currentScore-=it.price; updateScoreUI(); alert(`✅ 兑换成功：${it.name}`);
+                    }else{alert('❌ 积分不足');}
+                });
+                shopGrid.appendChild(d);
+            });
+        }
+
+        // 管理员功能
+        adminLockBtn.addEventListener('click',()=>{pwdModal.style.display='flex';});
+        closePwd.addEventListener('click',()=>{pwdModal.style.display='none';pwdInput.value='';});
+        closeAdmin.addEventListener('click',()=>{adminPanel.style.display='none';});
+        submitPwd.addEventListener('click',()=>{
+            if(pwdInput.value===ADMIN_PWD){
+                pwdModal.style.display='none';
+                adminPanel.style.display='flex';
+                renderAdminPanel();
+            }else{alert('密码错误');}
+            pwdInput.value='';
+        });
+
+        applyBgColor.addEventListener('click',()=>{
+            bgColor=bgColorPicker.value;
+            bodyEl.style.backgroundColor=bgColor;
+        });
+        applyBaseColor.addEventListener('click',()=>{
+            machineBaseColor=baseColorPicker.value;
+            document.querySelector('.machine-base').style.backgroundColor=machineBaseColor;
+        });
+
+        function renderAdminPanel(){
+            bgColorPicker.value=bgColor;
+            baseColorPicker.value=machineBaseColor;
+            renderTiersEdit();
+            renderShopEdit();
+        }
+
+        function renderTiersEdit(){
+            tiersEditContainer.innerHTML='';
+            tiers.forEach((t,i)=>{
+                const d=document.createElement('div');
+                d.className='tier-edit';
+                d.innerHTML=`
+                    <h4>档位 ${i+1}</h4>
+                    <label>消耗积分：</label><input type="number" class="t-min" value="${t.min}" style="width:80px;">
+                    <label>颜色：</label><input type="color" class="t-color" value="${t.color}">
+                    <div class="prize-list" style="margin:10px 0;"></div>
+                    <button class="add-prize" data-i="${i}">添加奖品</button>
+                    <button class="del-tier" data-i="${i}">删除此档位</button>
+                `;
+                const plist=d.querySelector('.prize-list');
+                t.prizes.forEach((p,j)=>{
+                    const pe=document.createElement('div');
+                    pe.className='prize-edit-item';
+                    pe.innerHTML=`
+                        <input type="text" class="p-text" data-i="${i}" data-j="${j}" value="${p}" style="width:140px;">
+                        <button class="del-prize" data-i="${i}" data-j="${j}">×</button>
+                    `;
+                    plist.appendChild(pe);
+                });
+                tiersEditContainer.appendChild(d);
+            });
+
+            // 奖品输入实时更新（本地）
+            document.querySelectorAll('.p-text').forEach(inp=>{
+                inp.addEventListener('change',()=>{
+                    const i = parseInt(inp.dataset.i);
+                    const j = parseInt(inp.dataset.j);
+                    tiers[i].prizes[j] = inp.value.trim();
+                });
+            });
+
+            document.querySelectorAll('.add-prize').forEach(b=>{
+                b.addEventListener('click',()=>{
+                    const i=parseInt(b.dataset.i);
+                    tiers[i].prizes.push('新奖品');
+                    renderTiersEdit();
+                });
+            });
+            document.querySelectorAll('.del-prize').forEach(b=>{
+                b.addEventListener('click',()=>{
+                    const i=parseInt(b.dataset.i);
+                    const j=parseInt(b.dataset.j);
+                    tiers[i].prizes.splice(j,1);
+                    renderTiersEdit();
+                });
+            });
+            document.querySelectorAll('.del-tier').forEach(b=>{
+                b.addEventListener('click',()=>{
+                    const i=parseInt(b.dataset.i);
+                    tiers.splice(i,1);
+                    renderTiersEdit();
+                    renderTierSelector();
+                    generateEggPool();
+                });
+            });
+
+            document.querySelectorAll('.t-min').forEach((inp,i)=>{
+                inp.addEventListener('change',()=>{
+                    tiers[i].min=parseInt(inp.value)||0;
+                    renderTierSelector();
+                });
+            });
+            document.querySelectorAll('.t-color').forEach((inp,i)=>{
+                inp.addEventListener('change',()=>{
+                    tiers[i].color=inp.value;
+                    renderTierSelector();
+                    generateEggPool();
+                });
+            });
+        }
+
+        addTierBtn.addEventListener('click',()=>{
+            const newId='t'+(tiers.length+1);
+            tiers.push({id:newId, min:10, color:'#aaaaaa', prizes:['新奖品']});
+            renderTiersEdit();
+            renderTierSelector();
+            generateEggPool();
+        });
+
+        function renderShopEdit(){
+            shopEditContainer.innerHTML='';
+            shopItems.forEach((it,k)=>{
+                const d=document.createElement('div');
+                d.className='shop-edit';
+                d.innerHTML=`
+                    <div>名称：<input class="s-name" data-k="${k}" value="${it.name}" style="width:140px;"></div>
+                    <div>积分：<input type="number" class="s-price" data-k="${k}" value="${it.price}" style="width:80px;"></div>
+                    <div>图片：<input class="s-img" data-k="${k}" value="${it.image}" style="width:200px;"></div>
+                    <div>类型：
+                        <select class="s-type" data-k="${k}">
+                            <option value="emoji" ${it.imageType==='emoji'?'selected':''}>emoji</option>
+                            <option value="url" ${it.imageType==='url'?'selected':''}>图片链接</option>
+                        </select>
+                    </div>
+                    <button class="del-shop" data-k="${k}">删除商品</button>
+                `;
+                shopEditContainer.appendChild(d);
+            });
+
+            // 商城输入实时更新（本地）
+            document.querySelectorAll('.s-name').forEach(inp=>{
+                inp.addEventListener('change',()=>{
+                    const k=parseInt(inp.dataset.k);
+                    shopItems[k].name = inp.value.trim();
+                });
+            });
+            document.querySelectorAll('.s-price').forEach(inp=>{
+                inp.addEventListener('change',()=>{
+                    const k=parseInt(inp.dataset.k);
+                    shopItems[k].price = parseInt(inp.value)||0;
+                });
+            });
+            document.querySelectorAll('.s-img').forEach(inp=>{
+                inp.addEventListener('change',()=>{
+                    const k=parseInt(inp.dataset.k);
+                    shopItems[k].image = inp.value.trim();
+                });
+            });
+            document.querySelectorAll('.s-type').forEach(sel=>{
+                sel.addEventListener('change',()=>{
+                    const k=parseInt(sel.dataset.k);
+                    shopItems[k].imageType = sel.value;
+                });
+            });
+
+            document.querySelectorAll('.del-shop').forEach(b=>{
+                b.addEventListener('click',()=>{
+                    const k=parseInt(b.dataset.k);
+                    shopItems.splice(k,1);
+                    renderShopEdit();
+                    renderShop();
+                });
+            });
+        }
+
+        addShopItemBtn.addEventListener('click',()=>{
+            const newId='s'+(shopItems.length+1);
+            shopItems.push({id:newId,name:'新商品',price:20,image:'🎁',imageType:'emoji'});
+            renderShopEdit();
+            renderShop();
+        });
+
+        // ========== 新增：保存所有设置（本地+云端） ==========
+        saveAllSettings.addEventListener('click', async () => {
+            // 重新渲染前端，应用所有修改
+            if (tiers.length > 0 && !tiers.find(t => t.id === selectedTierId)) {
+                selectedTierId = tiers[0].id;
+            }
+            renderTierSelector();
+            generateEggPool();
+            renderShop();
+            adminPanel.style.display = 'none';
+            
+            // 同步到云端
+            await saveToCloud();
+            alert('✅ 所有设置已保存！别人打开链接即可看到最新版');
+        });
+
+        // 初始化：先加载云端设置，再渲染页面
+        async function init(){
+            await loadFromCloud(); // 新增：加载云端设置
+            renderTierSelector();
+            generateEggPool();
+            renderShop();
+            updateScoreUI();
+            bodyEl.style.backgroundColor=bgColor;
+            document.querySelector('.machine-base').style.backgroundColor=machineBaseColor;
+            if(tiers[0]) syncEyeColor(tiers[0].color);
+            resetGachaState();
+        }
+        init();
+    })();
+</script>
+</body>
+</html>
