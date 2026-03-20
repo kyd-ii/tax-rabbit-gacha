@@ -1,0 +1,148 @@
+<！doctype 超文本标记语言>
+<超文本标记语言 朗="zh">
+<头>
+    <元 字符集="UTF-8">
+    <元 姓名="视口" 内容="宽度=设备宽度，初始比例=1.0">
+    <标题>🐰    兔子头 · 税法扭蛋与积分商城</标题>
+    <风格>
+/* 你原有所有样式完全保留，这里省略重复代码，实际复制时包含全部样式 */
+* {
+边缘: 0;
+填充：0；
+箱体尺寸: 边框框;
+字体系列：'流沙'，'Segoe UI'，'弗雷多卡一号'，无衬线；
+        }
+/* （此处保留你原来的所有CSS样式，不做任何修改） */
+    </风格>
+</头>
+<身体 身份标识="主体">
+<! -- 你原有所有HTML结构完全保留，不做任何修改 -->
+<! -- 角落小猫、管理员入口、主卡片、扭蛋机、商城等全部原样保留 -->
+
+    <脚本>
+(功能() {
+// ---------- 新增：云同步配置（无需修改，直接用）----------
+const cloud_STORAGE_KEY='tax-rabbit-gacha-settings'；//唯一标识，避免和其他项目冲突
+常量TINYDB_API='https://tinyjson.com/api';//免费云存储接口
+
+// ---------- 原有代码：管理员密码、默认数据、DOM获取等全部保留 ----------
+Const admin_PWD='pjy123'；
+让 层=[
+{身份标识：'T1'，最小值：5，颜色：'#FFB347'，奖品：['增值税贴纸'，'税法书签'，'减税糖果']}，
+{身份标识：'T2'，最小值：10，颜色：'#5F9EA0'，奖品：['纳税笔记本'，'发票中性笔'，'个税徽章']}，
+{身份标识：'T3'，最小值：20，颜色：'#C1A5D5'，奖品：['税法扑克'，'计算器'，'退税钥匙扣']}
+            ];
+让shopItems=[
+{身份标识：'S1'，姓名：'🐱 小猫玩偶'，价格：30，图像：'🧸'，imageType：'表情符号'}，
+{身份标识：'S2'，姓名：'📚 税法漫画'，价格：20，图像：'📘'，imageType：'表情符号'}，
+{身份标识：'S3'，姓名：'🍭 糖果礼包'，价格：15，图像：'🍬'，imageType：'表情符号'}
+            ];
+让bgcolor='#ffe8f0'；
+让machineBaseColor='#ffcc80'；
+让currentScore=100；
+让selectedTierId=层[0]？.身份标识||无效的；
+让isGachaing=假的；
+
+// （此处保留你原来的所有DOM获取、基础功能、扭蛋逻辑、商城逻辑代码）
+
+// ---------- 新增：云同步核心函数（加载/保存设置）----------
+// 从云端加载最新设置
+异步功能loadSettingsFromCloud(){
+尝试 {
+Const响应=等候取来('${TINYDB_API}/${cloud_STORAGE_KEY}')；
+Const数据=等候响应.JSON()；
+如果 (数据.成功 && 数据.数据) {
+// 覆盖本地设置为云端最新数据
+层=数据.数据.层||层;
+shopItems=数据.数据.shopItems||shopItems；
+bgcolor=数据.数据.bgcolor||bgColor；bgcolor||bgcolor；
+machineBaseColor=数据.数据.machineBaseColor||machineBaseColor；
+控制台.日志('✅ 已加载云端最新设置')；
+// 重新渲染页面，应用最新设置
+initRender()；
+                    }
+} 赶上 (误差) {
+控制台.日志('⚠️  云端加载失败，使用本地默认设置')；
+                }
+            }
+
+// 保存设置到云端
+异步功能saveSettingsToCloud(){
+Const设置={层，shopItems，bgcolor，machineBaseColor}；
+尝试 {
+Const响应=等候取来('${TINYDB_API}/${cloud_STORAGE_KEY}'，{
+方法：'邮件'，
+页眉：{'内容类型'：'应用程序/JSON‘}，
+身体：JSON.使字符串化(设置)
+                    });
+Const数据=等候响应.JSON()；
+如果 (数据.成功) {
+控制台.日志('✅ 设置已同步到云端')；
+警惕的('保存成功！ 所有打开链接的人都会看到最新设置~');
+} 其他 {
+警惕的('保存成功，但云端同步失败，请刷新重试');
+                    }
+} 赶上 (误差) {
+警惕的('保存成功，但云端同步失败，请刷新重试');
+                }
+            }
+
+// ---------- 修改：原有保存按钮逻辑，添加云端同步 ----------
+saveAllSettings.addEventListener('单击'，异步()=>{
+// 原有保存逻辑不变（同步本地数据）
+Const newTiers=[]；
+文件.querySelectorAll('.tier-edit').forEach(卡片=>{
+Const身份标识=卡片.数据集.身份标识；
+Const最小值=parseInt(卡片.querySelector('.tier-min')。价值)||0；
+Const颜色=卡片.QuerySelector('.层颜色').价值；
+Const奖品=[]；
+卡片.querySelectorAll('.prize-edit-item input[type="text"]').forEach(INP=>{
+奖品.推(INP.价值.修剪())；
+                    });
+newTier。推({身份标识，最小值，最大值：最小值，颜色，奖品})；
+                });
+层=newTier；
+
+Const newShop=[]；
+文件.querySelectorAll('.shop-edit').forEach(卡片=>{
+Const身份标识=卡片.数据集.身份标识；
+Const姓名=卡片.QuerySelector('.shop-name').价值.修剪()；
+Const价格=parseInt(卡片.querySelector('.shop-price')。价值)||0；
+Const图像=卡片.QuerySelector('.shop-image')。价值.修剪()；
+Const imageType=卡片.QuerySelector('.shop-image-type')。价值；
+newShop。推({身份标识，姓名，价格，图像，imageType})；
+                });
+shopItems=newShop；
+
+如果(层.长度>0&&！层.找到(t=>t.身份标识===selectedTierId)){
+selectedTierId=层[0].身份标识；
+                }
+renderTierSelector()；
+generateEggs()；
+renderShop()；
+adminPanel。风格.显示='无'；
+
+// 新增：同步到云端
+等候saveSettingsToCloud()；
+            });
+
+// ---------- 新增：页面加载时自动加载云端设置 ----------
+窗户.onload=异步()=>{
+等候loadSettingsFromCloud()；//先加载云端最新设置
+initRender()；//再初始化页面
+            };
+
+// ---------- 原有初始化函数保留 ----------
+功能initRender(){
+renderTierSelector()；
+generateEggs()；
+renderShop()；
+updateScoreUI()；
+bodyEl.风格.backgroundColor=bgcolor；
+文件.querySelector('.machine-base')。风格.backgroundColor=machineBaseColor；
+resetGachaState()；resetGachaState()；
+            }
+        })();
+    </脚本>
+</身体>
+</超文本标记语言>
